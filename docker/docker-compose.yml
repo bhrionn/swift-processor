@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  swift-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Database__Provider=SQLite
+      - Database__ConnectionString=Data Source=/app/data/messages.db
+      - Queue__Provider=InMemory
+    volumes:
+      - swift-data:/app/data
+    networks:
+      - swift-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  swift-console:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.console
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Database__Provider=SQLite
+      - Database__ConnectionString=Data Source=/app/data/messages.db
+      - Queue__Provider=InMemory
+    volumes:
+      - swift-data:/app/data
+    depends_on:
+      - swift-api
+    networks:
+      - swift-network
+    restart: unless-stopped
+
+  swift-frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_SIGNALR_URL=http://localhost:5000/messageHub
+    depends_on:
+      - swift-api
+    networks:
+      - swift-network
+    restart: unless-stopped
+
+volumes:
+  swift-data:
+    driver: local
+
+networks:
+  swift-network:
+    driver: bridge

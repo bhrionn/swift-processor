@@ -1,0 +1,41 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy project files and restore dependencies
+COPY ["src/SwiftMessageProcessor.Api/SwiftMessageProcessor.Api.csproj", "SwiftMessageProcessor.Api/"]
+COPY ["src/SwiftMessageProcessor.Core/SwiftMessageProcessor.Core.csproj", "SwiftMessageProcessor.Core/"]
+COPY ["src/SwiftMessageProcessor.Infrastructure/SwiftMessageProcessor.Infrastructure.csproj", "SwiftMessageProcessor.Infrastructure/"]
+COPY ["src/SwiftMessageProcessor.Application/SwiftMessageProcessor.Application.csproj", "SwiftMessageProcessor.Application/"]
+
+RUN dotnet restore "SwiftMessageProcessor.Api/SwiftMessageProcessor.Api.csproj"
+
+# Copy source code and build
+COPY src/ .
+WORKDIR "/src/SwiftMessageProcessor.Api"
+RUN dotnet build "SwiftMessageProcessor.Api.csproj" -c Release -o /app/build
+
+# Publish stage
+FROM build AS publish
+RUN dotnet publish "SwiftMessageProcessor.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 appgroup && \
+    adduser --system --uid 1001 --gid 1001 appuser
+
+# Copy published application
+COPY --from=publish --chown=appuser:appgroup /app/publish .
+
+# Use non-root user
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "SwiftMessageProcessor.Api.dll"]

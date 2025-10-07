@@ -1,0 +1,55 @@
+# Test Results
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio Test Platform
+*.runsettings
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+# MightyMoose
+*.mm.*
+AutoTest.Net/
+
+# dotCover
+*.dotCover
+
+# AxoCover
+.axoCover/*
+!.axoCover/settings.json
+
+# Coverlet
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Visual Studio Code coverage results
+*.coverage
+*.coveragexml
+
+# ReportGenerator
+coveragereport/
+
+# Test databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary test files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+Thumbs.db

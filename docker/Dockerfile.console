@@ -1,0 +1,36 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy project files and restore dependencies
+COPY ["src/SwiftMessageProcessor.Console/SwiftMessageProcessor.Console.csproj", "SwiftMessageProcessor.Console/"]
+COPY ["src/SwiftMessageProcessor.Core/SwiftMessageProcessor.Core.csproj", "SwiftMessageProcessor.Core/"]
+COPY ["src/SwiftMessageProcessor.Infrastructure/SwiftMessageProcessor.Infrastructure.csproj", "SwiftMessageProcessor.Infrastructure/"]
+COPY ["src/SwiftMessageProcessor.Application/SwiftMessageProcessor.Application.csproj", "SwiftMessageProcessor.Application/"]
+
+RUN dotnet restore "SwiftMessageProcessor.Console/SwiftMessageProcessor.Console.csproj"
+
+# Copy source code and build
+COPY src/ .
+WORKDIR "/src/SwiftMessageProcessor.Console"
+RUN dotnet build "SwiftMessageProcessor.Console.csproj" -c Release -o /app/build
+
+# Publish stage
+FROM build AS publish
+RUN dotnet publish "SwiftMessageProcessor.Console.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 appgroup && \
+    adduser --system --uid 1001 --gid 1001 appuser
+
+# Copy published application
+COPY --from=publish --chown=appuser:appgroup /app/publish .
+
+# Use non-root user
+USER appuser
+
+ENTRYPOINT ["dotnet", "SwiftMessageProcessor.Console.dll"]

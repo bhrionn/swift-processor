@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [-] 1. Set up project structure and core interfaces
+- [x] 1. Set up project structure and core interfaces
   - Create .NET Core 9.0 Web API project with proper folder structure (Controllers, Services, Models)
   - Create .NET Core 9.0 Console Application project for message processing
   - Create shared class libraries for Core domain models and Infrastructure services
@@ -10,20 +10,20 @@
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
 - [ ] 2. Implement SWIFT message domain models and parsing
-  - [ ] 2.1 Create base SwiftMessage class and MT103Message model
+  - [x] 2.1 Create base SwiftMessage class and MT103Message model
     - Implement SwiftMessage abstract base class with common properties
     - Create MT103Message class with all mandatory and optional fields according to SWIFT specifications
     - Implement field validation methods for each MT103 field type
     - _Requirements: 3.2, 3.4, 9.1_
 
-  - [ ] 2.2 Implement MT103 message parser
+  - [x] 2.2 Implement MT103 message parser
     - Create ISwiftMessageParser interface and MT103Parser implementation
     - Implement parsing logic for SWIFT message blocks (header, application, text, trailer)
     - Add field extraction and validation for all MT103 fields
     - Handle parsing errors and create detailed error messages
     - _Requirements: 3.1, 3.2, 3.3, 9.1_
 
-  - [ ]* 2.3 Write unit tests for message parsing and validation
+  - [x] 2.3 Write unit tests for message parsing and validation
     - Create test cases for valid MT103 message parsing
     - Test invalid message handling and error scenarios
     - Validate field extraction accuracy against SWIFT specifications

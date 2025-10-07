@@ -1,0 +1,36 @@
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.cache
+
+# Visual Studio
+.vs/
+
+# JetBrains Rider
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Log files
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with secrets (keep templates)
+appsettings.Production.json
+appsettings.Staging.json
+*secrets.json
+
+# OS generated files
+.DS_Store
+Thumbs.db

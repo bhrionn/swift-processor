@@ -1,0 +1,29 @@
+# Docker
+.dockerignore
+
+# Docker Compose override files
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# Docker volumes
+volumes/
+data/
+
+# Environment files with secrets
+.env.production
+.env.staging
+*.env.secret
+
+# Docker build context
+.docker/
+
+# Container logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+Thumbs.db

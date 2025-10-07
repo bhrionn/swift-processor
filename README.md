@@ -1,41 +1,124 @@
+# SWIFT Message Processor
 
-OVERVIEW
-We require to write a processor that receives MT103  SWIFT messages, processes them and adds the processed messages to a queue for further processing or analysis (dead letter queue).
+A comprehensive SWIFT message processing system built with .NET Core 9.0 and React TypeScript.
 
-The processor should have two parts 
-1.) Typescript web front end to see the received messages.
-    Typescript web site should use modern web app best practices. THe UI will simply read the local database to see what is processed, what is pending, what is failed.
-    The website can restart the processor. 
+## Project Structure
 
-2.) Dotnet Core 9.0 backend processor that reads SWIFT MT103  messages from a queue (local initially , but will be AWS queue), processes the MT103, updates the local database with processed into and moves the messages to completed queue.
-    THe backend processor should have all local queue functionality initially for testing and debug. THis will be replaced with AWS queue when in Staging.
-    Database should be a local database that will be switched to production SQL Server once testing is competed 
-    The backend should have a test mode that periodically generates various MT103 swif messages and adds them to the queue, ie. data sumulator for real timve testing of system.
-    The back end processor should be designed using SOLID design principles, dotnet code and extendable. We intend to process additional messages once this prototype is completed. i.e. MT102 etc.
+```
+SwiftMessageProcessor/
+├── src/
+│   ├── SwiftMessageProcessor.Core/          # Domain models and interfaces
+│   ├── SwiftMessageProcessor.Infrastructure/ # Data access and external services
+│   ├── SwiftMessageProcessor.Application/   # Business logic and services
+│   ├── SwiftMessageProcessor.Api/           # Web API project
+│   └── SwiftMessageProcessor.Console/       # Console application for message processing
+├── frontend/                                # React TypeScript frontend
+├── docker/                                  # Docker configuration files
+├── tests/                                   # Test projects (to be created)
+└── docs/                                    # SWIFT documentation and examples
+```
 
+## Architecture
 
-Swift Message Info:
-SWIFT messages are standardized financial messages sent securely between banks, identified by a three-digit message type code (MT) and a Bank Identifier Code (BIC). The MT code indicates the message's purpose, such as MT 103 for a single customer credit transfer, while the BIC identifies the specific bank, consisting of an 8 or 11-character code with the bank code, country code, location code, and optionally a branch code.i
+The system follows a clean architecture pattern with clear separation of concerns:
 
+- **Core**: Contains domain models, interfaces, and business rules
+- **Infrastructure**: Implements external concerns (database, queues, external APIs)
+- **Application**: Contains business logic and orchestrates the domain
+- **API**: Web API for frontend communication and system management
+- **Console**: Background service for message processing
+- **Frontend**: React TypeScript application for monitoring and management
 
-SWIFT Message (MT) Codes
-Structure: A three-digit code starting with "MT," for example, MT 103. 
-Purpose: The first digit designates a category (e.g., '1' for customer payments), the second digit identifies a group within that category (e.g., '0' for financial institution transfers), and the third digit specifies the exact message type. 
-Examples:
-MT 103: A single customer credit transfer. 
-MT 760: Used for bank guarantees and standby letters of credit. 
-MT 90: Advises charges, interest, or other adjustments on an account. 
-Bank Identifier Code (BIC)
-Also Known As: A SWIFT code, these terms are often used interchangeably. 
-Structure: An 8 or 11-character code. 
-Components:
-Bank Code: A shortened version of the bank's name. 
-Country Code: Identifies the bank's country of origin. 
-Location Code: Specifies the area within the country. 
-Branch Code (Optional): Identifies a specific branch of the bank. 
-Key Information for SWIFT Payments
-To make a SWIFT payment, you need several pieces of information: 
-The name and address of the recipient (payee).
-The name and address of the recipient's bank.
-The recipient's account number.
-The SWIFT code (BIC) of the recipient's bank.
+## Key Features
+
+- MT103 SWIFT message processing (extensible to other message types)
+- Queue-based message processing architecture
+- Real-time updates via SignalR
+- Docker containerization support
+- Environment-specific configuration
+- Health checks and monitoring
+- Test message generation for development
+
+## Getting Started
+
+### Prerequisites
+
+- .NET 9.0 SDK
+- Node.js 18+
+- Docker (optional)
+
+### Development Setup
+
+1. **Backend Setup**:
+   ```bash
+   dotnet restore
+   dotnet build
+   ```
+
+2. **Frontend Setup**:
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+3. **Run Applications**:
+   ```bash
+   # Start API
+   dotnet run --project src/SwiftMessageProcessor.Api
+
+   # Start Console Application
+   dotnet run --project src/SwiftMessageProcessor.Console
+
+   # Start Frontend (development)
+   cd frontend
+   npm run dev
+   ```
+
+### Docker Setup
+
+```bash
+# Build and run all services
+docker-compose -f docker/docker-compose.yml up --build
+```
+
+## Configuration
+
+The system supports environment-specific configuration:
+
+- **Development**: Uses SQLite database and in-memory queues
+- **Production**: Configurable for SQL Server and AWS SQS
+
+Configuration files:
+- `src/SwiftMessageProcessor.Api/appsettings.Development.json`
+- `src/SwiftMessageProcessor.Console/appsettings.Development.json`
+- `frontend/.env.development`
+
+## API Endpoints
+
+- `GET /api/messages` - Retrieve processed messages
+- `GET /api/system/status` - Get system status
+- `POST /api/system/restart` - Restart message processor
+- `GET /health` - Health check endpoint
+
+## Development
+
+This project follows SOLID principles and clean architecture patterns. Key interfaces:
+
+- `ISwiftMessageParser<T>` - Message parsing
+- `IQueueService` - Queue operations
+- `IMessageRepository` - Data persistence
+- `IMessageProcessingService` - Message processing orchestration
+
+## Next Steps
+
+The project structure is now complete. Continue with the implementation tasks:
+
+1. Implement SWIFT message parsing (Task 2)
+2. Set up database layer (Task 3)
+3. Implement queue management (Task 4)
+4. And so on...
+
+## Contributing
+
+Follow the established patterns and ensure all new code includes appropriate tests and documentation.
