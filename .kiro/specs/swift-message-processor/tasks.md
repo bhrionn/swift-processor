@@ -29,21 +29,21 @@
     - Validate field extraction accuracy against SWIFT specifications
     - _Requirements: 3.2, 9.1_
 
-- [ ] 3. Implement database layer and repositories
-  - [ ] 3.1 Set up database context and entity models
+- [x] 3. Implement database layer and repositories
+  - [x] 3.1 Set up database context and entity models
     - Create Entity Framework DbContext with Messages and SystemAudit tables
     - Implement ProcessedMessage entity with proper relationships
     - Configure database migrations for SQLite (development) and SQL Server (production)
     - _Requirements: 4.1, 4.2, 8.1, 8.3_
 
-  - [ ] 3.2 Implement message repository
+  - [x] 3.2 Implement message repository
     - Create IMessageRepository interface and implementation
     - Implement CRUD operations for processed messages
     - Add filtering and search functionality with proper indexing
     - Implement retry logic for database operations
     - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-  - [ ]* 3.3 Write repository integration tests
+  - [x] 3.3 Write repository integration tests
     - Test database operations with in-memory database
     - Validate query performance and filtering functionality
     - Test retry mechanisms and error handling
