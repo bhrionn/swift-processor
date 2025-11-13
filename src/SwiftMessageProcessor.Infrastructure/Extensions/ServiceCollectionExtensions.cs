@@ -6,6 +6,7 @@ using SwiftMessageProcessor.Core.Interfaces;
 using SwiftMessageProcessor.Infrastructure.Configuration;
 using SwiftMessageProcessor.Infrastructure.Data;
 using SwiftMessageProcessor.Infrastructure.Repositories;
+using SwiftMessageProcessor.Infrastructure.Services;
 
 namespace SwiftMessageProcessor.Infrastructure.Extensions;
 
@@ -16,6 +17,10 @@ public static class ServiceCollectionExtensions
         // Configure database options
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.AddSingleton<IValidateOptions<DatabaseOptions>, DatabaseOptionsValidator>();
+        
+        // Configure queue options
+        services.Configure<QueueOptions>(configuration.GetSection(QueueOptions.SectionName));
+        services.AddSingleton<IValidateOptions<QueueOptions>, QueueOptionsValidator>();
         
         // Add DbContext
         services.AddDbContext<SwiftMessageContext>((serviceProvider, options) =>
@@ -55,6 +60,16 @@ public static class ServiceCollectionExtensions
         
         // Register repositories
         services.AddScoped<IMessageRepository, MessageRepository>();
+        
+        // Register queue services
+        services.AddSingleton<LocalQueueService>();
+        services.AddScoped<IQueueServiceFactory, QueueServiceFactory>();
+        services.AddScoped<IQueueService>(provider =>
+        {
+            var factory = provider.GetRequiredService<IQueueServiceFactory>();
+            var queueOptions = provider.GetRequiredService<IOptions<QueueOptions>>().Value;
+            return factory.CreateQueueService(queueOptions.Provider);
+        });
         
         return services;
     }

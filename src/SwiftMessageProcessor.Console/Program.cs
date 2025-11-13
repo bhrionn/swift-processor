@@ -3,21 +3,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SwiftMessageProcessor.Core.Interfaces;
 using SwiftMessageProcessor.Application.Services;
-using SwiftMessageProcessor.Infrastructure.Services;
-using SwiftMessageProcessor.Infrastructure.Configuration;
+using SwiftMessageProcessor.Infrastructure.Extensions;
 using SwiftMessageProcessor.Console.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-// Add configuration
-builder.Services.Configure<DatabaseOptions>(
-    builder.Configuration.GetSection(DatabaseOptions.SectionName));
-builder.Services.Configure<QueueOptions>(
-    builder.Configuration.GetSection(QueueOptions.SectionName));
+// Add infrastructure services (includes database, queue, and repositories)
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Register services
 builder.Services.AddScoped<IMessageProcessingService, MessageProcessingService>();
-builder.Services.AddScoped<IQueueService, LocalQueueService>();
 builder.Services.AddHostedService<ConsoleHostService>();
 
 // Add logging

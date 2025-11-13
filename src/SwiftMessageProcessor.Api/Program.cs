@@ -1,15 +1,8 @@
 using SwiftMessageProcessor.Core.Interfaces;
 using SwiftMessageProcessor.Application.Services;
-using SwiftMessageProcessor.Infrastructure.Services;
-using SwiftMessageProcessor.Infrastructure.Configuration;
+using SwiftMessageProcessor.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add configuration
-builder.Services.Configure<DatabaseOptions>(
-    builder.Configuration.GetSection(DatabaseOptions.SectionName));
-builder.Services.Configure<QueueOptions>(
-    builder.Configuration.GetSection(QueueOptions.SectionName));
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -30,9 +23,11 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add infrastructure services (includes database, queue, and repositories)
+builder.Services.AddInfrastructure(builder.Configuration);
+
 // Register application services
 builder.Services.AddScoped<IMessageProcessingService, MessageProcessingService>();
-builder.Services.AddScoped<IQueueService, LocalQueueService>();
 
 // Add health checks
 builder.Services.AddHealthChecks();
