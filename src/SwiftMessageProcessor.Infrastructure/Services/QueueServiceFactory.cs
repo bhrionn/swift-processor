@@ -24,7 +24,7 @@ public class QueueServiceFactory : IQueueServiceFactory
         return provider.ToLowerInvariant() switch
         {
             "inmemory" or "local" => _serviceProvider.GetRequiredService<LocalQueueService>(),
-            "amazonsqs" or "sqs" => throw new NotImplementedException("AWS SQS service will be implemented in task 4.2"),
+            "amazonsqs" or "sqs" => _serviceProvider.GetRequiredService<AmazonSQSService>(),
             _ => throw new InvalidOperationException($"Unsupported queue provider: {provider}")
         };
     }

@@ -20,6 +20,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
     <PackageReference Include="Polly" Version="8.2.0" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.400.29" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301" />
   </ItemGroup>
 
   <PropertyGroup>

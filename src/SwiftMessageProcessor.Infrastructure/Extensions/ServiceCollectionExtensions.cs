@@ -1,3 +1,4 @@
+using Amazon.SQS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,8 +62,12 @@ public static class ServiceCollectionExtensions
         // Register repositories
         services.AddScoped<IMessageRepository, MessageRepository>();
         
+        // Register AWS SQS client
+        services.AddAWSService<IAmazonSQS>(configuration.GetAWSOptions());
+        
         // Register queue services
         services.AddSingleton<LocalQueueService>();
+        services.AddScoped<AmazonSQSService>();
         services.AddScoped<IQueueServiceFactory, QueueServiceFactory>();
         services.AddScoped<IQueueService>(provider =>
         {
