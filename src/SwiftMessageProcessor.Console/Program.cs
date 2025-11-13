@@ -19,11 +19,16 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.Configure<ProcessingOptions>(builder.Configuration.GetSection(ProcessingOptions.SectionName));
 builder.Services.AddSingleton<IValidateOptions<ProcessingOptions>, ProcessingOptionsValidator>();
 
+// Configure test mode options
+builder.Services.Configure<TestModeOptions>(builder.Configuration.GetSection(TestModeOptions.SectionName));
+builder.Services.AddSingleton<IValidateOptions<TestModeOptions>, TestModeOptionsValidator>();
+
 // Register parsers
 builder.Services.AddScoped<ISwiftMessageParser<MT103Message>, MT103Parser>();
 
 // Register services
 builder.Services.AddScoped<IMessageProcessingService, MessageProcessingService>();
+builder.Services.AddSingleton<ITestGeneratorService, TestGeneratorService>();
 builder.Services.AddHostedService<ConsoleHostService>();
 
 // Add logging

@@ -98,22 +98,22 @@
     - Test inter-process communication
     - _Requirements: 3.1, 4.1, 5.1, 10.1_
 
-- [ ] 6. Implement test message generation system in console application
-  - [ ] 6.1 Create test message generator service in console app
+- [x] 6. Implement test message generation system in console application
+  - [x] 6.1 Create test message generator service in console app
     - Implement ITestGeneratorService for creating valid and invalid MT103 messages
     - Create configurable test data generation with various field combinations
     - Add periodic message generation with configurable intervals
     - Implement test mode enable/disable functionality controlled by console app
     - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-  - [ ] 6.2 Integrate test generator with console application
+  - [x] 6.2 Integrate test generator with console application
     - Connect test generator to input queue for automated testing
     - Add test message identification and tracking
     - Implement test scenario generation (valid/invalid message ratios)
     - Integrate with console application lifecycle management
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ]* 6.3 Write test generator unit tests
+  - [x] 6.3 Write test generator unit tests
     - Validate generated message format and compliance
     - Test various test scenarios and edge cases
     - Verify test mode controls and configuration

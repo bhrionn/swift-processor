@@ -15,27 +15,35 @@ public class ConsoleHostService : BackgroundService
     private readonly IMessageProcessingService _messageProcessor;
     private readonly IProcessCommunicationService _communicationService;
     private readonly IQueueService _queueService;
+    private readonly ITestGeneratorService _testGenerator;
     private readonly ILogger<ConsoleHostService> _logger;
     private readonly CommunicationOptions _communicationOptions;
     private readonly QueueOptions _queueOptions;
+    private readonly TestModeOptions _testModeOptions;
     private readonly CancellationTokenSource _processingCts = new();
     private Task? _processingTask;
     private bool _isProcessing;
+    private bool _testModeEnabled;
 
     public ConsoleHostService(
         IMessageProcessingService messageProcessor,
         IProcessCommunicationService communicationService,
         IQueueService queueService,
+        ITestGeneratorService testGenerator,
         ILogger<ConsoleHostService> logger,
         IOptions<CommunicationOptions> communicationOptions,
-        IOptions<QueueOptions> queueOptions)
+        IOptions<QueueOptions> queueOptions,
+        IOptions<TestModeOptions> testModeOptions)
     {
         _messageProcessor = messageProcessor;
         _communicationService = communicationService;
         _queueService = queueService;
+        _testGenerator = testGenerator;
         _logger = logger;
         _communicationOptions = communicationOptions.Value;
         _queueOptions = queueOptions.Value;
+        _testModeOptions = testModeOptions.Value;
+        _testModeEnabled = testModeOptions.Value.Enabled;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -52,6 +60,13 @@ public class ConsoleHostService : BackgroundService
             
             // Start message processing
             await StartProcessingAsync();
+            
+            // Start test mode if enabled in configuration
+            if (_testModeEnabled)
+            {
+                _logger.LogInformation("Test mode is enabled in configuration, starting test message generation");
+                await EnableTestModeAsync(stoppingToken);
+            }
 
             // Wait for cancellation
             await Task.Delay(Timeout.Infinite, stoppingToken);
@@ -67,6 +82,7 @@ public class ConsoleHostService : BackgroundService
         }
         finally
         {
+            await DisableTestModeAsync();
             await StopProcessingAsync();
             _logger.LogInformation("Console Host Service stopped");
         }
@@ -102,11 +118,11 @@ public class ConsoleHostService : BackgroundService
                     break;
 
                 case ProcessCommand.EnableTestMode:
-                    _logger.LogInformation("Test mode enable command received (will be implemented in task 6)");
+                    await EnableTestModeAsync(CancellationToken.None);
                     break;
 
                 case ProcessCommand.DisableTestMode:
-                    _logger.LogInformation("Test mode disable command received (will be implemented in task 6)");
+                    await DisableTestModeAsync();
                     break;
 
                 default:
@@ -216,7 +232,7 @@ public class ConsoleHostService : BackgroundService
                         MessagesPending = queueStats.MessagesInQueue,
                         LastProcessedAt = systemStatus.LastProcessedAt,
                         Status = systemStatus.Status,
-                        TestModeEnabled = false, // Will be implemented in task 6
+                        TestModeEnabled = _testModeEnabled && _testGenerator.IsGenerating,
                         Metadata = new Dictionary<string, object>
                         {
                             ["ProcessId"] = Environment.ProcessId,
@@ -225,7 +241,9 @@ public class ConsoleHostService : BackgroundService
                             ["AverageProcessingTimeMs"] = metrics.AverageProcessingTimeMs,
                             ["MessagesPerMinute"] = metrics.MessagesPerMinute,
                             ["ErrorsByType"] = metrics.ErrorsByType,
-                            ["QueueHealth"] = await _queueService.IsHealthyAsync()
+                            ["QueueHealth"] = await _queueService.IsHealthyAsync(),
+                            ["TestModeEnabled"] = _testModeEnabled,
+                            ["TestGeneratorActive"] = _testGenerator.IsGenerating
                         }
                     };
 
@@ -301,6 +319,58 @@ public class ConsoleHostService : BackgroundService
         }
 
         _logger.LogInformation("Message processing loop stopped");
+    }
+
+    /// <summary>
+    /// Enables test mode and starts generating test messages
+    /// </summary>
+    private async Task EnableTestModeAsync(CancellationToken cancellationToken)
+    {
+        if (_testModeEnabled && _testGenerator.IsGenerating)
+        {
+            _logger.LogWarning("Test mode is already enabled and generating messages");
+            return;
+        }
+        
+        _logger.LogInformation("Enabling test mode with generation interval: {Interval}", _testModeOptions.GenerationInterval);
+        _testModeEnabled = true;
+        
+        try
+        {
+            await _testGenerator.StartGenerationAsync(_testModeOptions.GenerationInterval, cancellationToken);
+            _logger.LogInformation("Test mode enabled successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to enable test mode");
+            _testModeEnabled = false;
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Disables test mode and stops generating test messages
+    /// </summary>
+    private async Task DisableTestModeAsync()
+    {
+        if (!_testModeEnabled && !_testGenerator.IsGenerating)
+        {
+            _logger.LogWarning("Test mode is not enabled");
+            return;
+        }
+        
+        _logger.LogInformation("Disabling test mode");
+        _testModeEnabled = false;
+        
+        try
+        {
+            await _testGenerator.StopGenerationAsync();
+            _logger.LogInformation("Test mode disabled successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error disabling test mode");
+        }
     }
 
     public override void Dispose()
