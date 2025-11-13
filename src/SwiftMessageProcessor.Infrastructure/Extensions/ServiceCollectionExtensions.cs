@@ -23,6 +23,10 @@ public static class ServiceCollectionExtensions
         services.Configure<QueueOptions>(configuration.GetSection(QueueOptions.SectionName));
         services.AddSingleton<IValidateOptions<QueueOptions>, QueueOptionsValidator>();
         
+        // Configure communication options
+        services.Configure<CommunicationOptions>(configuration.GetSection(CommunicationOptions.SectionName));
+        services.AddSingleton<IValidateOptions<CommunicationOptions>, CommunicationOptionsValidator>();
+        
         // Add DbContext
         services.AddDbContext<SwiftMessageContext>((serviceProvider, options) =>
         {
@@ -75,6 +79,9 @@ public static class ServiceCollectionExtensions
             var queueOptions = provider.GetRequiredService<IOptions<QueueOptions>>().Value;
             return factory.CreateQueueService(queueOptions.Provider);
         });
+        
+        // Register inter-process communication service
+        services.AddSingleton<IProcessCommunicationService, FileBasedCommunicationService>();
         
         return services;
     }

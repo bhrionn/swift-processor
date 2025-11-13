@@ -8,6 +8,7 @@ public interface IMessageProcessingService
     Task StartProcessingAsync(CancellationToken cancellationToken);
     Task StopProcessingAsync();
     Task<SystemStatus> GetSystemStatusAsync();
+    Task<ProcessingMetrics> GetMetricsAsync();
 }
 
 public class ProcessingResult

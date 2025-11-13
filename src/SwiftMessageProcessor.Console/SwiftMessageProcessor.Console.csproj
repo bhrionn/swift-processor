@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SwiftMessageProcessor.Core\SwiftMessageProcessor.Core.csproj" />
     <ProjectReference Include="..\SwiftMessageProcessor.Application\SwiftMessageProcessor.Application.csproj" />
+    <ProjectReference Include="..\SwiftMessageProcessor.Infrastructure\SwiftMessageProcessor.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
