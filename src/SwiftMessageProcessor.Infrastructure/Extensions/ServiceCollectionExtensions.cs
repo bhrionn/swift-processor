@@ -52,6 +52,10 @@ public static class ServiceCollectionExtensions
                     });
                     break;
                     
+                case "inmemory":
+                    options.UseInMemoryDatabase(databaseOptions.ConnectionString);
+                    break;
+                    
                 default:
                     throw new InvalidOperationException($"Unsupported database provider: {databaseOptions.Provider}");
             }
@@ -99,7 +103,7 @@ public class DatabaseOptionsValidator : IValidateOptions<DatabaseOptions>
         if (string.IsNullOrEmpty(options.ConnectionString))
             failures.Add("Database connection string must be specified");
             
-        var supportedProviders = new[] { "sqlite", "sqlserver" };
+        var supportedProviders = new[] { "sqlite", "sqlserver", "inmemory" };
         if (!supportedProviders.Contains(options.Provider.ToLowerInvariant()))
             failures.Add($"Database provider '{options.Provider}' is not supported. Supported providers: {string.Join(", ", supportedProviders)}");
         

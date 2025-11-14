@@ -1,6 +1,8 @@
 using SwiftMessageProcessor.Core.Interfaces;
 using SwiftMessageProcessor.Application.Services;
 using SwiftMessageProcessor.Infrastructure.Extensions;
+using SwiftMessageProcessor.Api.Hubs;
+using SwiftMessageProcessor.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,8 +31,15 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Register application services
 builder.Services.AddScoped<IMessageProcessingService, MessageProcessingService>();
 
+// Register SignalR hub service
+builder.Services.AddSingleton<IMessageHubService, MessageHubService>();
+
+// Register background services
+builder.Services.AddHostedService<StatusBroadcastService>();
+
 // Add health checks
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddCheck<ConsoleAppHealthCheck>("console-app");
 
 var app = builder.Build();
 
@@ -47,4 +56,10 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
+// Map SignalR hub
+app.MapHub<MessageHub>("/hubs/messages");
+
 app.Run();
+
+// Make Program class accessible for integration testing
+public partial class Program { }
