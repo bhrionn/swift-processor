@@ -1,0 +1,161 @@
+{
+  "dashboard": {
+    "title": "SWIFT Message Processor - System Overview",
+    "tags": ["swift", "overview"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"swift-.*\"}",
+            "legendFormat": "{{ job }}"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "textMode": "value_and_name"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"type": "value", "value": "0", "text": "DOWN", "color": "red"},
+              {"type": "value", "value": "1", "text": "UP", "color": "green"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 1, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Messages Processed (Rate)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(swift_console_messages_processed_total[5m])",
+            "legendFormat": "Processed"
+          },
+          {
+            "expr": "rate(swift_console_messages_failed_total[5m])",
+            "legendFormat": "Failed"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Queue Depth",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "swift_queue_depth{queue=\"input\"}",
+            "legendFormat": "Input Queue"
+          },
+          {
+            "expr": "swift_queue_depth{queue=\"completed\"}",
+            "legendFormat": "Completed Queue"
+          },
+          {
+            "expr": "swift_queue_depth{queue=\"dead_letter\"}",
+            "legendFormat": "Dead Letter Queue"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "API Response Time (p95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(swift_api_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th Percentile"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(swift_api_errors_total[5m])",
+            "legendFormat": "API Errors"
+          },
+          {
+            "expr": "rate(swift_console_errors_total[5m])",
+            "legendFormat": "Console Errors"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Database Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(swift_database_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "Query Time (p95)"
+          },
+          {
+            "expr": "rate(swift_database_queries_total[5m])",
+            "legendFormat": "Query Rate"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{name=~\"swift-.*\"} / 1024 / 1024",
+            "legendFormat": "{{ name }}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "yaxes": [{"format": "mbytes"}]
+      },
+      {
+        "id": 8,
+        "title": "CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{name=~\"swift-.*\"}[5m]) * 100",
+            "legendFormat": "{{ name }}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "yaxes": [{"format": "percent"}]
+      },
+      {
+        "id": 9,
+        "title": "Active Alerts",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "ALERTS{alertstate=\"firing\"}",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 32}
+      }
+    ],
+    "refresh": "10s",
+    "time": {"from": "now-1h", "to": "now"}
+  }
+}

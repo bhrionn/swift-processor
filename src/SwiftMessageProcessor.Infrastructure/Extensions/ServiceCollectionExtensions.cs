@@ -122,6 +122,8 @@ public static class ServiceCollectionExtensions
         // Register monitoring and metrics services
         services.AddSingleton<MetricsCollectionService>();
         services.AddSingleton<ErrorLoggingService>();
+        services.AddSingleton<ApplicationPerformanceMonitoringService>();
+        services.AddSingleton<SystemHealthReportingService>();
         
         // Register security services
         services.AddSingleton<IDataEncryptionService, DataEncryptionService>();

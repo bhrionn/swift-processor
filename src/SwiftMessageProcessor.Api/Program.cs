@@ -60,6 +60,9 @@ app.UseSecurityHeaders();
 // Add correlation ID middleware
 app.UseCorrelationId();
 
+// Add Prometheus metrics middleware
+app.UsePrometheusMetrics();
+
 // Add API key authentication middleware
 app.UseApiKeyAuthentication();
 
@@ -82,6 +85,10 @@ app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthC
 
 // Map SignalR hub
 app.MapHub<MessageHub>("/hubs/messages");
+
+// Start automated health reporting
+var healthReportingService = app.Services.GetRequiredService<SwiftMessageProcessor.Infrastructure.Services.SystemHealthReportingService>();
+healthReportingService.StartHealthReporting(TimeSpan.FromMinutes(1));
 
 app.Run();
 

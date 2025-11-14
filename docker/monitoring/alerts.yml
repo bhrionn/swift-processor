@@ -1,0 +1,212 @@
+groups:
+  - name: swift_message_processor_alerts
+    interval: 30s
+    rules:
+      # API Service Alerts
+      - alert: ApiServiceDown
+        expr: up{job="swift-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "SWIFT API service is down"
+          description: "The SWIFT API service has been down for more than 1 minute."
+
+      - alert: ApiHighErrorRate
+        expr: rate(swift_api_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "High error rate in API"
+          description: "API error rate is {{ $value }} errors/sec over the last 5 minutes."
+
+      - alert: ApiHighResponseTime
+        expr: histogram_quantile(0.95, rate(swift_api_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "API response time is high"
+          description: "95th percentile response time is {{ $value }}s, exceeding 2s threshold."
+
+      # Console Service Alerts
+      - alert: ConsoleServiceDown
+        expr: up{job="swift-console"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: console
+        annotations:
+          summary: "SWIFT Console service is down"
+          description: "The SWIFT Console processing service has been down for more than 1 minute."
+
+      - alert: ConsoleProcessingStalled
+        expr: rate(swift_console_messages_processed_total[5m]) == 0 and swift_console_queue_depth > 0
+        for: 5m
+        labels:
+          severity: critical
+          service: console
+        annotations:
+          summary: "Console message processing has stalled"
+          description: "No messages processed in 5 minutes despite queue depth of {{ $value }}."
+
+      - alert: ConsoleHighFailureRate
+        expr: rate(swift_console_messages_failed_total[5m]) / rate(swift_console_messages_processed_total[5m]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          service: console
+        annotations:
+          summary: "High message failure rate in console"
+          description: "Message failure rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      # Database Alerts
+      - alert: DatabaseConnectionFailure
+        expr: swift_database_connection_errors_total > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection failures detected"
+          description: "{{ $value }} database connection errors in the last minute."
+
+      - alert: DatabaseHighLatency
+        expr: histogram_quantile(0.95, rate(swift_database_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database query latency is high"
+          description: "95th percentile query time is {{ $value }}s, exceeding 1s threshold."
+
+      # Queue Alerts
+      - alert: QueueDepthHigh
+        expr: swift_queue_depth{queue="input"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: queue
+        annotations:
+          summary: "Input queue depth is high"
+          description: "Input queue has {{ $value }} messages, exceeding threshold of 1000."
+
+      - alert: DeadLetterQueueGrowing
+        expr: rate(swift_queue_depth{queue="dead_letter"}[10m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: queue
+        annotations:
+          summary: "Dead letter queue is growing"
+          description: "Dead letter queue is growing at {{ $value }} messages/sec."
+
+      - alert: QueueConnectionFailure
+        expr: swift_queue_connection_errors_total > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: queue
+        annotations:
+          summary: "Queue connection failures detected"
+          description: "{{ $value }} queue connection errors in the last minute."
+
+      # Inter-Service Communication Alerts
+      - alert: InterServiceCommunicationFailure
+        expr: swift_interservice_communication_errors_total > 0
+        for: 2m
+        labels:
+          severity: critical
+          component: communication
+        annotations:
+          summary: "Inter-service communication failures"
+          description: "{{ $value }} communication errors between API and Console services."
+
+      - alert: SignalRConnectionsLow
+        expr: swift_signalr_active_connections < 1
+        for: 10m
+        labels:
+          severity: info
+          component: signalr
+        annotations:
+          summary: "No active SignalR connections"
+          description: "No frontend clients connected via SignalR for 10 minutes."
+
+      # System Resource Alerts
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}."
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining on {{ $labels.instance }}."
+
+      # Container Alerts
+      - alert: ContainerHighMemory
+        expr: container_memory_usage_bytes{name=~"swift-.*"} / container_spec_memory_limit_bytes{name=~"swift-.*"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container memory usage high"
+          description: "Container {{ $labels.name }} is using {{ $value | humanizePercentage }} of its memory limit."
+
+      - alert: ContainerRestarting
+        expr: rate(container_last_seen{name=~"swift-.*"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container is restarting"
+          description: "Container {{ $labels.name }} has restarted {{ $value }} times in the last 5 minutes."
+
+      # Health Check Alerts
+      - alert: HealthCheckFailing
+        expr: swift_health_check_status{check!="overall"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          component: health
+        annotations:
+          summary: "Health check failing"
+          description: "Health check {{ $labels.check }} is failing on {{ $labels.service }}."
+
+      # Message Processing Performance
+      - alert: MessageProcessingSlowdown
+        expr: rate(swift_console_messages_processed_total[5m]) < rate(swift_console_messages_processed_total[30m]) * 0.5
+        for: 10m
+        labels:
+          severity: warning
+          service: console
+        annotations:
+          summary: "Message processing has slowed down"
+          description: "Processing rate has dropped by more than 50% compared to 30-minute average."

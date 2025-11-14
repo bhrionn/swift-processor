@@ -271,7 +271,7 @@
     - Test inter-service communication and data consistency
     - _Requirements: 3.1, 4.1, 5.1, 1.1, 2.5_
 
-  - [ ] 12.2 Implement distributed system monitoring and alerting
+  - [x] 12.2 Implement distributed system monitoring and alerting
     - Set up application performance monitoring (APM) integration for both services
     - Create custom metrics dashboards for distributed system health
     - Implement alerting for critical system failures in either service
@@ -279,7 +279,7 @@
     - Monitor inter-service communication and dependencies
     - _Requirements: 10.1, 10.3, 10.4, 10.5_
 
-  - [ ] 12.3 Write performance and load tests for distributed system
+  - [x] 12.3 Write performance and load tests for distributed system
     - Create load tests for message processing throughput in console application
     - Test Web API performance under high query load
     - Test database performance under concurrent access from both services

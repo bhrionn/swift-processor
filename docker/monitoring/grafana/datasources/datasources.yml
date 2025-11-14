@@ -9,6 +9,7 @@ datasources:
     editable: true
     jsonData:
       timeInterval: "15s"
+      httpMethod: "POST"
 
   - name: Loki
     type: loki
@@ -17,3 +18,11 @@ datasources:
     editable: true
     jsonData:
       maxLines: 1000
+
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: true
+    jsonData:
+      implementation: "prometheus"

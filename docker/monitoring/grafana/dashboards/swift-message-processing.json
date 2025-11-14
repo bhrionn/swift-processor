@@ -1,0 +1,164 @@
+{
+  "dashboard": {
+    "title": "SWIFT Message Processor - Message Processing",
+    "tags": ["swift", "messages"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Message Processing Throughput",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(swift_console_messages_processed_total[1m])",
+            "legendFormat": "Messages/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Message Processing Success Rate",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "rate(swift_console_messages_processed_total[5m]) / (rate(swift_console_messages_processed_total[5m]) + rate(swift_console_messages_failed_total[5m])) * 100"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0},
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 80, "color": "yellow"},
+                {"value": 95, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Messages by Status",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "swift_messages_by_status",
+            "legendFormat": "{{ status }}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Message Processing Duration",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(swift_message_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(swift_message_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(swift_message_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "p99"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Parse Errors by Type",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(swift_parse_errors_total[5m])",
+            "legendFormat": "{{ error_type }}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Queue Operations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(swift_queue_operations_total{operation=\"receive\"}[5m])",
+            "legendFormat": "Receive"
+          },
+          {
+            "expr": "rate(swift_queue_operations_total{operation=\"send\"}[5m])",
+            "legendFormat": "Send"
+          },
+          {
+            "expr": "rate(swift_queue_operations_total{operation=\"delete\"}[5m])",
+            "legendFormat": "Delete"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Database Operations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(swift_database_operations_total{operation=\"insert\"}[5m])",
+            "legendFormat": "Insert"
+          },
+          {
+            "expr": "rate(swift_database_operations_total{operation=\"update\"}[5m])",
+            "legendFormat": "Update"
+          },
+          {
+            "expr": "rate(swift_database_operations_total{operation=\"select\"}[5m])",
+            "legendFormat": "Select"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 8,
+        "title": "Retry Operations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(swift_retry_attempts_total[5m])",
+            "legendFormat": "{{ component }}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 9,
+        "title": "Test Mode Activity",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "swift_test_mode_enabled",
+            "legendFormat": "Test Mode"
+          },
+          {
+            "expr": "rate(swift_test_messages_generated_total[5m])",
+            "legendFormat": "Generated Messages/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      }
+    ],
+    "refresh": "10s",
+    "time": {"from": "now-1h", "to": "now"}
+  }
+}
