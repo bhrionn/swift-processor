@@ -119,6 +119,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<MetricsCollectionService>();
         services.AddSingleton<ErrorLoggingService>();
         
+        // Register security services
+        services.AddSingleton<IDataEncryptionService, DataEncryptionService>();
+        services.AddScoped<IAuditLoggingService, AuditLoggingService>();
+        services.AddScoped<IDataRetentionService, DataRetentionService>();
+        
         // Register health checks
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "database", "infrastructure" })

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SwiftMessageProcessor.Core.Interfaces;
+using SwiftMessageProcessor.Infrastructure.Services;
 
 namespace SwiftMessageProcessor.Api.Controllers;
 
@@ -9,11 +10,16 @@ namespace SwiftMessageProcessor.Api.Controllers;
 public class SystemController : ControllerBase
 {
     private readonly IProcessCommunicationService _communicationService;
+    private readonly IAuditLoggingService _auditService;
     private readonly ILogger<SystemController> _logger;
 
-    public SystemController(IProcessCommunicationService communicationService, ILogger<SystemController> logger)
+    public SystemController(
+        IProcessCommunicationService communicationService,
+        IAuditLoggingService auditService,
+        ILogger<SystemController> logger)
     {
         _communicationService = communicationService;
+        _auditService = auditService;
         _logger = logger;
     }
 
@@ -97,6 +103,13 @@ public class SystemController : ControllerBase
             _logger.LogInformation("Sending start command to console application");
 
             await _communicationService.SendCommandAsync(ProcessCommand.Start);
+            
+            // Log administrative action
+            await _auditService.LogAdministrativeActionAsync(
+                "StartProcessor",
+                "Message processor start command sent",
+                null,
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             _logger.LogInformation("Start command sent successfully");
             return Ok(new { message = "Processor start command sent successfully" });
@@ -122,6 +135,13 @@ public class SystemController : ControllerBase
             _logger.LogInformation("Sending stop command to console application");
 
             await _communicationService.SendCommandAsync(ProcessCommand.Stop);
+            
+            // Log administrative action
+            await _auditService.LogAdministrativeActionAsync(
+                "StopProcessor",
+                "Message processor stop command sent",
+                null,
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             _logger.LogInformation("Stop command sent successfully");
             return Ok(new { message = "Processor stop command sent successfully" });
@@ -147,6 +167,13 @@ public class SystemController : ControllerBase
             _logger.LogInformation("Sending restart command to console application");
 
             await _communicationService.SendCommandAsync(ProcessCommand.Restart);
+            
+            // Log administrative action
+            await _auditService.LogAdministrativeActionAsync(
+                "RestartProcessor",
+                "Message processor restart command sent",
+                null,
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             _logger.LogInformation("Restart command sent successfully");
             return Ok(new { message = "Processor restart command sent successfully" });
@@ -172,6 +199,13 @@ public class SystemController : ControllerBase
             _logger.LogInformation("Sending enable test mode command to console application");
 
             await _communicationService.SendCommandAsync(ProcessCommand.EnableTestMode);
+            
+            // Log administrative action
+            await _auditService.LogAdministrativeActionAsync(
+                "EnableTestMode",
+                "Test mode enabled",
+                null,
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             _logger.LogInformation("Enable test mode command sent successfully");
             return Ok(new { message = "Test mode enabled successfully" });
@@ -197,6 +231,13 @@ public class SystemController : ControllerBase
             _logger.LogInformation("Sending disable test mode command to console application");
 
             await _communicationService.SendCommandAsync(ProcessCommand.DisableTestMode);
+            
+            // Log administrative action
+            await _auditService.LogAdministrativeActionAsync(
+                "DisableTestMode",
+                "Test mode disabled",
+                null,
+                HttpContext.Connection.RemoteIpAddress?.ToString());
 
             _logger.LogInformation("Disable test mode command sent successfully");
             return Ok(new { message = "Test mode disabled successfully" });

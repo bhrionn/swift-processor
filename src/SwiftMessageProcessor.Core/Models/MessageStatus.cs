@@ -6,5 +6,6 @@ public enum MessageStatus
     Processing = 1,
     Processed = 2,
     Failed = 3,
-    DeadLetter = 4
+    DeadLetter = 4,
+    Archived = 5
 }

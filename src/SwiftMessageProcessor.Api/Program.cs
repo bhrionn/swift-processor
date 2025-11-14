@@ -32,6 +32,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Register application services
 builder.Services.AddScoped<IMessageProcessingService, MessageProcessingService>();
 
+// Register compliance validator
+builder.Services.AddScoped<SwiftMessageProcessor.Core.Services.ISwiftComplianceValidator, 
+    SwiftMessageProcessor.Core.Services.SwiftComplianceValidator>();
+
 // Register SignalR hub service
 builder.Services.AddSingleton<IMessageHubService, MessageHubService>();
 
@@ -50,8 +54,14 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// Add security headers middleware
+app.UseSecurityHeaders();
+
 // Add correlation ID middleware
 app.UseCorrelationId();
+
+// Add API key authentication middleware
+app.UseApiKeyAuthentication();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
