@@ -19,9 +19,9 @@ export interface Message {
 export interface MessageFilter {
   skip: number;
   take: number;
-  status?: MessageStatus;
-  fromDate?: Date;
-  toDate?: Date;
+  status?: MessageStatus | undefined;
+  fromDate?: Date | undefined;
+  toDate?: Date | undefined;
 }
 
 export interface PagedResult<T> {

@@ -1,20 +1,21 @@
 import React from 'react';
-import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from '@/components/Layout';
+import Dashboard from '@/pages/Dashboard';
+import Messages from '@/pages/Messages';
+import Settings from '@/pages/Settings';
 
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>SWIFT Message Processor</h1>
-        <p>Dashboard and monitoring interface for SWIFT message processing</p>
-      </header>
-      <main>
-        <div className="dashboard-placeholder">
-          <h2>Dashboard</h2>
-          <p>Message processing dashboard will be implemented in later tasks</p>
-        </div>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 };
 
