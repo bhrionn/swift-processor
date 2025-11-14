@@ -77,10 +77,36 @@ The system follows a clean architecture pattern with clear separation of concern
 
 ### Docker Setup
 
+#### Quick Start (Development)
 ```bash
-# Build and run all services
-docker-compose -f docker/docker-compose.yml up --build
+cd docker
+docker-compose up -d
 ```
+
+Access services:
+- Frontend: http://localhost:3000
+- API: http://localhost:5000
+- API Health: http://localhost:5000/health
+
+#### Full Stack with Monitoring
+```bash
+cd docker
+docker-compose -f docker-compose.full.yml up -d
+```
+
+Additional services:
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3001 (admin/admin)
+
+#### Production Deployment
+```bash
+cd docker
+cp .env.example .env
+# Edit .env with production values
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+For detailed deployment instructions, see [docker/DEPLOYMENT.md](docker/DEPLOYMENT.md)
 
 ## Configuration
 
@@ -110,14 +136,82 @@ This project follows SOLID principles and clean architecture patterns. Key inter
 - `IMessageRepository` - Data persistence
 - `IMessageProcessingService` - Message processing orchestration
 
-## Next Steps
+## Deployment
 
-The project structure is now complete. Continue with the implementation tasks:
+The system supports multiple deployment scenarios:
 
-1. Implement SWIFT message parsing (Task 2)
-2. Set up database layer (Task 3)
-3. Implement queue management (Task 4)
-4. And so on...
+### Local Development
+- SQLite database
+- In-memory queues
+- File-based inter-process communication
+- Test mode enabled
+
+### Production
+- SQL Server database
+- AWS SQS queues
+- Scalable architecture
+- Monitoring and logging
+
+See [docker/DEPLOYMENT.md](docker/DEPLOYMENT.md) for comprehensive deployment guide.
+
+## Database Management
+
+### Migrations
+```bash
+# Apply migrations
+./scripts/migrate-database.sh update
+
+# Create new migration
+./scripts/migrate-database.sh add MigrationName
+
+# Rollback migration
+./scripts/migrate-database.sh rollback MigrationName
+```
+
+### Backups
+```bash
+# Backup SQLite database
+./scripts/backup-database.sh sqlite /app/data/messages.db
+
+# Restore database
+./scripts/backup-database.sh restore-sqlite backup.tar.gz /app/data/messages.db
+
+# List backups
+./scripts/backup-database.sh list
+```
+
+See [scripts/README.md](scripts/README.md) for detailed script documentation.
+
+## Monitoring
+
+### Health Checks
+```bash
+# Run health check script
+./docker/healthcheck.sh
+
+# Check individual services
+curl http://localhost:5000/health
+docker ps --filter "name=swift-"
+```
+
+### Metrics and Logs
+- Prometheus metrics: http://localhost:9090
+- Grafana dashboards: http://localhost:3001
+- Centralized logging with Loki
+
+## Testing
+
+```bash
+# Run all tests
+dotnet test
+
+# Run specific test project
+dotnet test tests/SwiftMessageProcessor.Core.Tests
+
+# Frontend tests
+cd frontend
+npm test
+```
 
 ## Contributing
 

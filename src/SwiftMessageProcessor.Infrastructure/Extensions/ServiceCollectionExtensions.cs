@@ -98,6 +98,10 @@ public static class ServiceCollectionExtensions
         // Register repositories
         services.AddScoped<IMessageRepository, MessageRepository>();
         
+        // Register database management services
+        services.AddScoped<DbSeeder>();
+        services.AddScoped<DatabaseMigrationService>();
+        
         // Register AWS SQS client
         services.AddAWSService<IAmazonSQS>(configuration.GetAWSOptions());
         

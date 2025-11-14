@@ -232,15 +232,15 @@
     - Test audit logging and compliance reporting
     - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 11. Set up deployment and DevOps infrastructure
-  - [ ] 11.1 Create Docker containers and orchestration
+- [x] 11. Set up deployment and DevOps infrastructure
+  - [x] 11.1 Create Docker containers and orchestration
     - Create Dockerfiles for frontend, Web API, and console applications
     - Set up Docker Compose for local development environment with all three services
     - Configure container networking and volume management
     - Add container health checks and restart policies for all services
     - _Requirements: 8.1, 8.2, 8.3_
 
-  - [ ] 11.2 Implement database migrations and seeding
+  - [x] 11.2 Implement database migrations and seeding
     - Create Entity Framework migrations for all database changes
     - Implement database seeding with initial configuration data
     - Add migration rollback capabilities and version management
@@ -248,22 +248,22 @@
     - Configure shared database access for both Web API and console app
     - _Requirements: 4.1, 8.1, 8.3_
 
-  - [ ] 11.3 Configure multi-service deployment
+  - [x] 11.3 Configure multi-service deployment
     - Set up service discovery and communication between Web API and console app
     - Configure shared volumes and networking for inter-service communication
     - Implement service startup dependencies and health checks
     - Add monitoring and logging for distributed services
     - _Requirements: 8.1, 8.2, 8.3, 2.5_
 
-  - [ ]* 11.4 Write deployment and infrastructure tests
+  - [x] 11.4 Write deployment and infrastructure tests
     - Test Docker container builds and deployments for all services
     - Validate database migrations and seeding
     - Test environment configuration switching
     - Test inter-service communication and dependencies
     - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 12. Integration testing and system validation
-  - [ ] 12.1 Implement end-to-end integration tests
+- [-] 12. Integration testing and system validation
+  - [x] 12.1 Implement end-to-end integration tests
     - Create complete system tests from message ingestion in console app to UI display via Web API
     - Test message processing pipeline with various MT103 message types across both applications
     - Validate error handling and recovery scenarios in distributed architecture
@@ -279,7 +279,7 @@
     - Monitor inter-service communication and dependencies
     - _Requirements: 10.1, 10.3, 10.4, 10.5_
 
-  - [ ]* 12.3 Write performance and load tests for distributed system
+  - [ ] 12.3 Write performance and load tests for distributed system
     - Create load tests for message processing throughput in console application
     - Test Web API performance under high query load
     - Test database performance under concurrent access from both services

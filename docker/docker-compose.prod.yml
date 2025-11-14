@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  # Web API Service - Production
+  swift-api:
+    image: swift-message-processor-api:${VERSION:-latest}
+    container_name: swift-api-prod
+    ports:
+      - "80:8080"
+      - "443:8443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Database__Provider=SqlServer
+      - Database__ConnectionString=${DATABASE_CONNECTION_STRING}
+      - Queue__Provider=AmazonSQS
+      - Queue__Region=${AWS_REGION:-us-east-1}
+      - Queue__InputQueueUrl=${AWS_INPUT_QUEUE_URL}
+      - Queue__CompletedQueueUrl=${AWS_COMPLETED_QUEUE_URL}
+      - Queue__DeadLetterQueueUrl=${AWS_DLQ_URL}
+      - Communication__Type=FileSystem
+      - Communication__StatusFilePath=/app/communication/status.json
+      - Communication__CommandFilePath=/app/communication/command.json
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - Logging__LogLevel__Default=Warning
+      - Logging__LogLevel__SwiftMessageProcessor=Information
+    volumes:
+      - swift-communication:/app/communication
+    networks:
+      - swift-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      swift-console:
+        condition: service_started
+
+  # Console Processing Application - Production
+  swift-console:
+    image: swift-message-processor-console:${VERSION:-latest}
+    container_name: swift-console-prod
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - Database__Provider=SqlServer
+      - Database__ConnectionString=${DATABASE_CONNECTION_STRING}
+      - Queue__Provider=AmazonSQS
+      - Queue__Region=${AWS_REGION:-us-east-1}
+      - Queue__InputQueueUrl=${AWS_INPUT_QUEUE_URL}
+      - Queue__CompletedQueueUrl=${AWS_COMPLETED_QUEUE_URL}
+      - Queue__DeadLetterQueueUrl=${AWS_DLQ_URL}
+      - Communication__Type=FileSystem
+      - Communication__StatusFilePath=/app/communication/status.json
+      - Communication__CommandFilePath=/app/communication/command.json
+      - TestMode__Enabled=false
+      - Processing__BatchSize=50
+      - Processing__PollingInterval=00:00:02
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - Logging__LogLevel__Default=Warning
+      - Logging__LogLevel__SwiftMessageProcessor=Information
+    volumes:
+      - swift-communication:/app/communication
+    networks:
+      - swift-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "SwiftMessageProcessor.Console"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend Application - Production
+  swift-frontend:
+    image: swift-message-processor-frontend:${VERSION:-latest}
+    container_name: swift-frontend-prod
+    ports:
+      - "8080:80"
+    environment:
+      - REACT_APP_API_URL=${API_URL}
+      - REACT_APP_SIGNALR_URL=${SIGNALR_URL}
+    networks:
+      - swift-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      swift-api:
+        condition: service_healthy
+
+volumes:
+  swift-communication:
+    driver: local
+
+networks:
+  swift-network:
+    driver: bridge

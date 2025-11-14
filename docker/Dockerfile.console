@@ -24,13 +24,21 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 
 # Create non-root user
-RUN addgroup --system --gid 1001 appgroup && \
-    adduser --system --uid 1001 --gid 1001 appuser
+RUN groupadd -r appgroup --gid=1001 && \
+    useradd -r -g appgroup --uid=1001 --home-dir=/app --shell=/bin/bash appuser
 
 # Copy published application
-COPY --from=publish --chown=appuser:appgroup /app/publish .
+COPY --from=publish /app/publish .
 
-# Use non-root user
+# Create data directory for SQLite and communication files
+RUN mkdir -p /app/data /app/communication && \
+    chown -R appuser:appgroup /app
+
+# Switch to non-root user
 USER appuser
+
+# Health check - check if process is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD pgrep -f "SwiftMessageProcessor.Console" > /dev/null || exit 1
 
 ENTRYPOINT ["dotnet", "SwiftMessageProcessor.Console.dll"]

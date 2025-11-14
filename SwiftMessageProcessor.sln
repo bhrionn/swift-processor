@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftMessageProcessor.Api",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftMessageProcessor.Console", "src\SwiftMessageProcessor.Console\SwiftMessageProcessor.Console.csproj", "{AFBD9A84-0BF4-47B8-B54B-FA1D9A878EF9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftMessageProcessor.E2E.Tests", "tests\SwiftMessageProcessor.E2E.Tests\SwiftMessageProcessor.E2E.Tests.csproj", "{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +89,18 @@ Global
 		{AFBD9A84-0BF4-47B8-B54B-FA1D9A878EF9}.Release|x64.Build.0 = Release|Any CPU
 		{AFBD9A84-0BF4-47B8-B54B-FA1D9A878EF9}.Release|x86.ActiveCfg = Release|Any CPU
 		{AFBD9A84-0BF4-47B8-B54B-FA1D9A878EF9}.Release|x86.Build.0 = Release|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Debug|x64.Build.0 = Debug|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Debug|x86.Build.0 = Debug|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Release|x64.ActiveCfg = Release|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Release|x64.Build.0 = Release|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Release|x86.ActiveCfg = Release|Any CPU
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,5 +111,6 @@ Global
 		{42702CCE-DB26-46CB-9E93-D8E323B33542} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{A4D23185-907D-4DBD-9C2F-DCFF03C99E33} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{AFBD9A84-0BF4-47B8-B54B-FA1D9A878EF9} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{634B13A7-3C51-43F6-B895-DAC3D7B1ABC2} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
