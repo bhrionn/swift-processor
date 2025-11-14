@@ -2,6 +2,7 @@ using SwiftMessageProcessor.Core.Interfaces;
 using SwiftMessageProcessor.Application.Services;
 using SwiftMessageProcessor.Infrastructure.Extensions;
 using SwiftMessageProcessor.Api.Hubs;
+using SwiftMessageProcessor.Api.Middleware;
 using SwiftMessageProcessor.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,9 +38,9 @@ builder.Services.AddSingleton<IMessageHubService, MessageHubService>();
 // Register background services
 builder.Services.AddHostedService<StatusBroadcastService>();
 
-// Add health checks
+// Add health checks (infrastructure health checks are added by AddInfrastructure)
 builder.Services.AddHealthChecks()
-    .AddCheck<ConsoleAppHealthCheck>("console-app");
+    .AddCheck<ConsoleAppHealthCheck>("console-app", tags: new[] { "console", "application" });
 
 var app = builder.Build();
 
@@ -49,12 +50,25 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// Add correlation ID middleware
+app.UseCorrelationId();
+
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map health check endpoints
 app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("infrastructure")
+});
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false // Just checks if the app is running
+});
 
 // Map SignalR hub
 app.MapHub<MessageHub>("/hubs/messages");

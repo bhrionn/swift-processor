@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using SwiftMessageProcessor.Core.Interfaces;
 using SwiftMessageProcessor.Infrastructure.Configuration;
 using SwiftMessageProcessor.Infrastructure.Data;
+using SwiftMessageProcessor.Infrastructure.HealthChecks;
 using SwiftMessageProcessor.Infrastructure.Repositories;
 using SwiftMessageProcessor.Infrastructure.Services;
 
@@ -15,17 +16,44 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Configure database options
+        // Configure database options with validation
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.AddSingleton<IValidateOptions<DatabaseOptions>, DatabaseOptionsValidator>();
+        services.AddOptions<DatabaseOptions>()
+            .Bind(configuration.GetSection(DatabaseOptions.SectionName))
+            .ValidateOnStart();
         
-        // Configure queue options
+        // Configure queue options with validation
         services.Configure<QueueOptions>(configuration.GetSection(QueueOptions.SectionName));
         services.AddSingleton<IValidateOptions<QueueOptions>, QueueOptionsValidator>();
+        services.AddOptions<QueueOptions>()
+            .Bind(configuration.GetSection(QueueOptions.SectionName))
+            .ValidateOnStart();
         
-        // Configure communication options
+        // Configure processing options with validation
+        services.Configure<ProcessingOptions>(configuration.GetSection(ProcessingOptions.SectionName));
+        services.AddSingleton<IValidateOptions<ProcessingOptions>, ProcessingOptionsValidator>();
+        services.AddOptions<ProcessingOptions>()
+            .Bind(configuration.GetSection(ProcessingOptions.SectionName))
+            .ValidateOnStart();
+        
+        // Configure communication options with validation
         services.Configure<CommunicationOptions>(configuration.GetSection(CommunicationOptions.SectionName));
         services.AddSingleton<IValidateOptions<CommunicationOptions>, CommunicationOptionsValidator>();
+        services.AddOptions<CommunicationOptions>()
+            .Bind(configuration.GetSection(CommunicationOptions.SectionName))
+            .ValidateOnStart();
+        
+        // Configure test mode options with validation
+        services.Configure<TestModeOptions>(configuration.GetSection(TestModeOptions.SectionName));
+        services.AddSingleton<IValidateOptions<TestModeOptions>, TestModeOptionsValidator>();
+        services.AddOptions<TestModeOptions>()
+            .Bind(configuration.GetSection(TestModeOptions.SectionName))
+            .ValidateOnStart();
+        
+        // Register configuration validator
+        services.AddSingleton<ConfigurationValidator>();
+        services.AddHostedService<ConfigurationStartupValidator>();
         
         // Add DbContext
         services.AddDbContext<SwiftMessageContext>((serviceProvider, options) =>
@@ -86,6 +114,15 @@ public static class ServiceCollectionExtensions
         
         // Register inter-process communication service
         services.AddSingleton<IProcessCommunicationService, FileBasedCommunicationService>();
+        
+        // Register monitoring and metrics services
+        services.AddSingleton<MetricsCollectionService>();
+        services.AddSingleton<ErrorLoggingService>();
+        
+        // Register health checks
+        services.AddHealthChecks()
+            .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "database", "infrastructure" })
+            .AddCheck<QueueHealthCheck>("queue", tags: new[] { "queue", "infrastructure" });
         
         return services;
     }
